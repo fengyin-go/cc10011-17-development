@@ -103,3 +103,42 @@ export function loadOverview(): OverviewResult {
   ]
   return { cards, modules }
 }
+
+// 字段映射执行与数据落盘联动：页面统一从这一层读写，规则快照与结果明细都落在本地存储。
+export {
+  applyBatchStrategy,
+  auditMappingBatch,
+  batchRuleSnapshot,
+  commitMappingBatch,
+  enabledMappingRules,
+  getMappingSnapshot,
+  landedRecords,
+  latestMappingBatch,
+  listMappingBatches,
+  listMappingRules,
+  listSourceRecords,
+  loadStorageManifest,
+  repairConflictRecord,
+  resetMappingState,
+  resumeMapping,
+  rulesFromEntries,
+  runMapping,
+  strategyLabel,
+} from '@/data/mapping-service'
+export type {
+  ConflictStrategy,
+  FieldErrorType,
+  FieldMappingResult,
+  LandedRecord,
+  MappingBatch,
+  MappingBatchStatus,
+  MappingExecutionResult,
+  MappingRuleDef,
+  MappingState,
+  RecordMappingResult,
+  RecordMappingStatus,
+  SourceRecord,
+  StorageManifest,
+  StorageRun,
+  StrategyScope,
+} from '@/data/mapping-types'

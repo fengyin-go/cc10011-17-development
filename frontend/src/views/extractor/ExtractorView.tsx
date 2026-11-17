@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { downloadEntries, listEntries, moduleMeta, runAction as applyAction } from '@/api/local-service'
 import type { EntryRow } from '@/data/types'
+import MappingWorkbench from './MappingWorkbench'
 
 const meta = moduleMeta('extractor')
 const columns = [
@@ -44,6 +45,7 @@ export default function ExtractorView() {
   const [rows, setRows] = useState<EntryRow[]>([])
   const [total, setTotal] = useState(0)
   const [errorMessage, setErrorMessage] = useState('')
+  const [notice, setNotice] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
   const filterFields = useMemo(() => columns.slice(0, 3), [])
 
@@ -62,8 +64,14 @@ export default function ExtractorView() {
     reload()
   }, [reload])
 
+  function notify(message: string, isError = false) {
+    setNotice(isError ? '' : message)
+    setErrorMessage(isError ? message : '')
+  }
+
   function runAction(action: string, row: EntryRow) {
     setErrorMessage('')
+    setNotice('')
     const result = applyAction(meta.key, Number(row.id), action)
     if (!result.ok) {
       setErrorMessage(result.message)
@@ -80,7 +88,7 @@ export default function ExtractorView() {
           <p className="page-desc">维护字段映射规则的输入、执行约束与结果记录，为字段映射提供可验证的数据工程流程。</p>
         </div>
         <div className="page-actions">
-          <button className="btn primary" type="button" onClick={() => setErrorMessage('映射规则登记入口尚未接入审批流')}>
+          <button className="btn" type="button" onClick={() => setErrorMessage('映射规则登记入口尚未接入审批流')}>
             登记映射规则
           </button>
           <button className="btn" type="button" onClick={() => downloadEntries(meta.key)}>
@@ -153,8 +161,14 @@ export default function ExtractorView() {
 
       <footer className="page-foot">
         <span>共 {total} 条字段映射记录</span>
+        {notice && <span className="success-text">{notice}</span>}
         {errorMessage && <span className="error-text">{errorMessage}</span>}
       </footer>
+
+      <MappingWorkbench
+        onNotify={notify}
+        refreshKey={rows.map((row) => `${row['规则编号']}:${row.status}`).join('|')}
+      />
     </section>
   )
 }

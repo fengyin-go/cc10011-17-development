@@ -68,7 +68,11 @@ npm run build
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
-- 想回到初始数据：清掉浏览器里 `scraper-strategy-studio:entries` 这一项，或调用 `resetModule(模块)`。
+- 字段映射执行逻辑在 `src/data/mapping-service.ts`（经 `local-service.ts` 导出）：规则从
+  「字段映射」已启用行读取并在批次内冻结，逐条转换源记录、整批归并唯一性，结果写进批次明细；
+  数据落盘只接收明细里已通过的记录，源记录状态保持原样。
+- 想回到初始数据：清掉浏览器里 `scraper-strategy-studio:entries` 与
+  `scraper-strategy-studio:mapping` 这两项，或调用 `resetModule(模块)`。
 
 领域：数据工程
 子方向：数据采集、爬虫与RPA

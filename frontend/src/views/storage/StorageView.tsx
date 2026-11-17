@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { downloadEntries, listEntries, moduleMeta, runAction as applyAction } from '@/api/local-service'
 import type { EntryRow } from '@/data/types'
+import StorageWorkbench from './StorageWorkbench'
 
 const meta = moduleMeta('storage')
 const columns = [
@@ -44,6 +45,7 @@ export default function StorageView() {
   const [rows, setRows] = useState<EntryRow[]>([])
   const [total, setTotal] = useState(0)
   const [errorMessage, setErrorMessage] = useState('')
+  const [notice, setNotice] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
   const filterFields = useMemo(() => columns.slice(0, 3), [])
 
@@ -62,8 +64,14 @@ export default function StorageView() {
     reload()
   }, [reload])
 
+  function notify(message: string, isError = false) {
+    setNotice(isError ? '' : message)
+    setErrorMessage(isError ? message : '')
+  }
+
   function runAction(action: string, row: EntryRow) {
     setErrorMessage('')
+    setNotice('')
     const result = applyAction(meta.key, Number(row.id), action)
     if (!result.ok) {
       setErrorMessage(result.message)
@@ -80,7 +88,7 @@ export default function StorageView() {
           <p className="page-desc">维护数据落盘配置的输入、执行约束与结果记录，为数据落盘提供可验证的数据工程流程。</p>
         </div>
         <div className="page-actions">
-          <button className="btn primary" type="button" onClick={() => setErrorMessage('存储配置登记入口尚未接入审批流')}>
+          <button className="btn" type="button" onClick={() => setErrorMessage('存储配置登记入口尚未接入审批流')}>
             登记存储配置
           </button>
           <button className="btn" type="button" onClick={() => downloadEntries(meta.key)}>
@@ -121,6 +129,9 @@ export default function StorageView() {
         <button className="btn ghost" type="button" onClick={() => setFilters({})}>重置条件</button>
       </form>
 
+      <StorageWorkbench configs={rows} onNotify={notify} />
+
+      <h3 className="subsection-title">存储配置清单</h3>
       <table className="data-table">
         <thead>
           <tr>
@@ -153,6 +164,7 @@ export default function StorageView() {
 
       <footer className="page-foot">
         <span>共 {total} 条数据落盘记录</span>
+        {notice && <span className="success-text">{notice}</span>}
         {errorMessage && <span className="error-text">{errorMessage}</span>}
       </footer>
     </section>
